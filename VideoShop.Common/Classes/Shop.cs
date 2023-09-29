@@ -60,4 +60,78 @@ public class Shop
         if(name == default && name.Length.Equals(0)) { throw new ArgumentException("You cannot add nothing idiot"); }
         _genres.AddGenre(name);
     }
+    public List<Genre> GetGenresInMovie()
+    {
+        List<Genre> genres = new();
+        try
+        {
+            foreach (var movie in Movies)
+            {
+                var joinedGenres = Genres.Join(
+                    movie.Genres,
+                    genre => genre.Id,
+                    movieGenre => movieGenre.Id,
+                    (genre, movieGenre) => genre);
+                genres.AddRange(joinedGenres);
+            }
+        }
+        catch { }
+        return genres.Distinct().OrderBy(g => g.Name).ToList();
+    }
+    public List<Movie> GetMoviesInGenre(int genreId)
+    {
+        List<Movie> moviesInGenre = new();
+        try
+        {
+            foreach(var movie in Movies)
+            {
+                if (movie.Genres.Any(g => g.Id.Equals(genreId)))
+                {
+                    moviesInGenre.Add(movie);
+                }
+                //movie.Genres.Where(m => m.Id.Equals(genreId)).
+            }   
+        }
+        catch { }
+        //var movies = Movies.Where(); Testar att göra ovanstående loop med ett längre LINQ-uttryck
+        
+        return moviesInGenre;
+    }
+    public int GetNumberOfMoviesInGenre(int genreId) 
+    {
+        var movies = GetMoviesInGenre(genreId);
+        return movies.Count; 
+    }
+    public List<Movie> FilterMoviesOnTitle(string titleSearch)
+    {
+        try
+        {
+            if (titleSearch == default || titleSearch.Length.Equals(0))     //Upprepad kod
+            {
+                return Movies;
+            }
+            return Movies.Where(m => m.Title.ToLower().Contains(titleSearch.ToLower())).ToList();
+        }
+        catch
+        {
+            _movies = new();
+            return _movies;
+        }
+    }
+    public List<Movie> FilterMoviesOnTitle(string titleSearch, int skip, int take)
+    {
+
+        try
+        {
+            if (titleSearch == default || titleSearch.Length.Equals(0))     //Upprepad kod
+            {
+                return Movies;
+            }
+
+        }
+        catch { }
+
+        return Movies; //temp
+    }
+
 }
