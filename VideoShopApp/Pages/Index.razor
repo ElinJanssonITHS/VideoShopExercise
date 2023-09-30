@@ -1,9 +1,78 @@
 ﻿@page "/"
+@using VideoShop.Common.Classes
+@using VideoShop.Common.Records
+@using VideoShop.Common.Enums
+
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Movie Shop</h1>
+<div class="container-width">
+    @if (error != string.Empty)
+    {
+        <div class="mb-4 alert alert-danger">
+            <strong>Error</strong> @error
+        </div>
+    }
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    <div class="input-group mb-4">
+        <input type="text" class="form-control" placeholder="Genre" @bind="newGenre">
+        <button class="btn btn-outline-primary" type="button" @onclick="AddGenre">Add</button>
+        <button class="btn btn-outline-primary" type="button" @onclick="GenresInFilms">In Movies</button>
+        <button class="btn btn-outline-primary" type="button" @onclick="AllGenres">All</button>
+    </div>
+
+    <div>
+        <ul class="list-group">
+            @foreach(var movie in shop.Movies)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @movie.
+                    <span class="badge bg-secondary">14</span>
+                </li>
+            }
+        </ul>
+    </div>
+
+</div>
+
+
+@code {
+    Shop shop = new Shop(SortOrder.Ascending);
+    string error = string.Empty;
+    string newGenre = string.Empty;
+    bool showAllGenres = true;
+    List<Genre> genres = new();
+
+    void AddGenre()
+    {
+        try
+        {
+            error = string.Empty;
+            shop.AddGenre(newGenre);
+            if (showAllGenres) AllGenres();
+            else GenresInFilms();
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+    void GenresInFilms()
+    {
+        error = string.Empty;
+        genres = shop.GetGenresInMovie();
+        showAllGenres = false;
+    }
+    void AllGenres()
+    {
+        error = string.Empty;
+        genres = shop.Genres;
+    }
+    protected override void OnInitialized()
+    {
+        AllGenres();
+    }
+
+}

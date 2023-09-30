@@ -1,9 +1,13 @@
 ﻿using VideoShop.Common.Records;
 using VideoShop.Common.Enums;
+using System.Collections.Generic;
+
 namespace VideoShop.Common.Classes;
 
 public class Shop
 {
+    public string Error { get; set; } = string.Empty;
+    public string GanreName { get; set; } = string.Empty;
     private List<Movie> _movies = new();
     private List<Genre> _genres = new();
     public SortOrder SortOrder { get; }
@@ -106,7 +110,7 @@ public class Shop
     {
         try
         {
-            if (titleSearch == default || titleSearch.Length.Equals(0))     //Upprepad kod
+            if (titleSearch == default || titleSearch.Length.Equals(0))     
             {
                 return Movies;
             }
@@ -120,18 +124,35 @@ public class Shop
     }
     public List<Movie> FilterMoviesOnTitle(string titleSearch, int skip, int take)
     {
-
+        IEnumerable<Movie> movies;
         try
         {
-            if (titleSearch == default || titleSearch.Length.Equals(0))     //Upprepad kod
-            {
-                return Movies;
-            }
+            movies = FilterMoviesOnTitle(titleSearch);
+            if (skip >= 0 ) movies.Skip(skip); 
+            if (take > 0 ) movies.Take(take);
 
         }
-        catch { }
-
-        return Movies; //temp
+        catch 
+        {
+            movies = new List<Movie>();
+        }
+        
+        return movies.ToList(); 
+    }
+    public List<Movie> UnionMovies()
+    {
+        IEnumerable<Movie> movies;
+        try
+        {
+            var movies1 = Movies.Take(2);
+            var movies2 = Movies.Skip(4).Take(1);
+            movies = movies1.Union(movies2);
+        }
+        catch
+        {
+            movies = new List<Movie>();
+        }
+        return movies.ToList();
     }
 
 }
