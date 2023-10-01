@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VideoShop.Business\VideoShop.Business.csproj" />
     <ProjectReference Include="..\VideoShop.Common\VideoShop.Common.csproj" />
   </ItemGroup>
 

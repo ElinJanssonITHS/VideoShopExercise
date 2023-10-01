@@ -6,8 +6,6 @@ namespace VideoShop.Common.Classes;
 
 public class Shop
 {
-    public string Error { get; set; } = string.Empty;
-    public string GanreName { get; set; } = string.Empty;
     private List<Movie> _movies = new();
     private List<Genre> _genres = new();
     public SortOrder SortOrder { get; }
@@ -24,15 +22,15 @@ public class Shop
         SortOrder = sortOrder;
         SeedData();
     }
-    public Movie AddMovie (string title, int genreId, int year)
+    public Movie AddMovie(string title, int year, int genreId)
     {
         try
         {
-            if (string.IsNullOrEmpty(title)) { throw new ArgumentException("A movie needs a title..."); }
+            if (title == default || title.Length.Equals(0)) { throw new ArgumentException("A movie needs a title..."); }
             if(year < 1800) { throw new ArgumentException("No movie existed before year 1800 you dumb fuck"); }
             var genre = _genres.SingleOrDefault(g => g.Id.Equals(genreId));
             if (genre == default) { throw new ArgumentException("Could not find genre"); }
-            Movie movie = new(Movies.Count+1, title, year,genre);
+            var movie = new Movie(Movies.Count+1, title, year,genre);
             _movies.Add(movie);
             return _movies.Single(m => m.Id.Equals(movie.Id));
         }
@@ -42,12 +40,12 @@ public class Shop
     {
         _genres.AddGenre("Action").AddGenre("Fantasy").AddGenre("Crime").AddGenre("Romance").AddGenre("Drama").AddGenre("Horror").AddGenre("Adventure");
 
-        var action = _genres.First(g => g.Equals("Action"));
-        var fantasy = _genres.First(g => g.Equals("Fantasy"));
-        var crime = _genres.First(g => g.Equals("Crime"));
-        var romance = _genres.First(g => g.Equals("Romance"));
-        var drama = _genres.First(g => g.Equals("Drama"));
-        var horror = _genres.First(g => g.Equals("Horror"));
+        var action = _genres.First(g => g.Name.Equals("Action"));
+        var fantasy = _genres.First(g => g.Name.Equals("Fantasy"));
+        var crime = _genres.First(g => g.Name.Equals("Crime"));
+        var romance = _genres.First(g => g.Name.Equals("Romance"));
+        var drama = _genres.First(g => g.Name.Equals("Drama"));
+        var horror = _genres.First(g => g.Name.Equals("Horror"));
         var adventure = _genres.First(g => g.Name.Equals("Adventure"));
 
         AddMovie("The Shawshank Redemption", 1994, drama.Id);
@@ -61,7 +59,7 @@ public class Shop
     }
     public void AddGenre(string name)
     {
-        if(name == default && name.Length.Equals(0)) { throw new ArgumentException("You cannot add nothing idiot"); }
+        if(name == default || name.Length.Equals(0)) { throw new ArgumentException("You cannot add nothing idiot"); }
         _genres.AddGenre(name);
     }
     public List<Genre> GetGenresInMovie()
@@ -103,14 +101,23 @@ public class Shop
     }
     public int GetNumberOfMoviesInGenre(int genreId) 
     {
-        var movies = GetMoviesInGenre(genreId);
-        return movies.Count; 
+        //var movies = GetMoviesInGenre(genreId);
+        //return movies.Count; 
+        try
+        {
+            var genre = Genres.Single(g => g.Id.Equals(genreId));
+            return Movies.Count(f => f.Genres.Contains(genre));
+        }
+        catch
+        {
+            throw;
+        }
     }
     public List<Movie> FilterMoviesOnTitle(string titleSearch)
     {
         try
         {
-            if (titleSearch == default || titleSearch.Length.Equals(0))     
+            if (titleSearch == default || titleSearch.Length <= 1)     
             {
                 return Movies;
             }
@@ -128,8 +135,8 @@ public class Shop
         try
         {
             movies = FilterMoviesOnTitle(titleSearch);
-            if (skip >= 0 ) movies.Skip(skip); 
-            if (take > 0 ) movies.Take(take);
+            if (skip >= 0 ) movies = movies.Skip(skip); 
+            if (take > 0 ) movies = movies.Take(take);
 
         }
         catch 
